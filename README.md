@@ -15,8 +15,6 @@ If you are here for only the Discord part and understand basic authentication al
 
 # Setting up Basic Authentication
 
-s
-
 ## Setup Firebase
 
 -   If you dont have a Firebase project, head over to https://firebase.google.com to make one
@@ -39,7 +37,7 @@ Let's now just get Google Auth to work, as well as a basic secure page
 -   Create an admin page where you must be logged in to
 -   Import your provider and `signInWithPopup`, it should look like below
 
-````
+```
 <button
     onClick={async () => {
           const provider = new GoogleAuthProvider();
@@ -48,8 +46,8 @@ Let's now just get Google Auth to work, as well as a basic secure page
     }}
 >
     Login with Google
-</button>```
-````
+</button>
+```
 
 ## Configure the session checks
 
@@ -93,14 +91,15 @@ Before we begin, we need to first setup Discord
 -   Under the OAuth2 tab copy the Client ID, Client Secret, and Redirect URI to your .env file
 -   The Redirect URI must match the API endpoint we are going to create later. Also, you must add this URI to `Redirects` in the Discord Portal
 
-````NEXT_PUBLIC_DISCORD_CLIENTID=123456
+````
+NEXT_PUBLIC_DISCORD_CLIENTID=123456
 NEXT_PUBLIC_DISCORD_CLIENT_SECRET=123456
 NEXT_PUBLIC_DISCORD_REDIRECT_URI=http://localhost:3000/api/auth/callback```
 ````
 
 ## Create Cloud Function
 
-I tried to do this without needing a Cloud Function, but I didnt want any security risks. The Clound Function itself is very simple, it just passes a token into it, and it returns another token. I know we are skipping a step, but we need to add this function first since the Callback API depends on it. If you dont know how Cloud Functions work, I wont be going over it with you, but the code is in this repo for review
+I tried to do this without needing a Cloud Function, but I didnt want any security risks. The Cloud Function itself is very simple, it just passes a token into it, and it returns another token. I know we are skipping a step, but we need to add this function first since the Callback API depends on it. If you dont know how Cloud Functions work, I wont be going over it with you, but the code is in this repo for review
 
 -   Enable functions in Firebase, and create a new function from the one in this repo
 -   Go to https://firebase.google.com and make a Realtime Database, grab the URL and paste it in the function
