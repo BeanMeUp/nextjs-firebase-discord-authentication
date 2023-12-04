@@ -173,7 +173,7 @@ exports.createToken = functions.https.onCall((data, context) => {
 -   Create the `/api/auth/callback/route.tsx` file
 -   In that file pass in the `code` URL param into POST `https://discord.com/api/oauth2/token` (Just use my `exchangeCodeForToken` util function)
 -   Pass this token into the createToken cloud function that we created above
--   Redirect to a client page such as `/login` and pass the `access_token` result from `createToken` as a URL query
+-   Redirect to a client page such as `/login` and pass the `custom_token` result from `createToken` as a URL query
 
 ```
 import { exchangeCodeForToken } from "@/utils/discord";
@@ -193,13 +193,13 @@ export async function GET(request: NextRequest) {
         access_token: access_token,
     });
 
-    redirect("/login?access_token=" + firebaseToken.data.customToken);
+    redirect("/login?custom_token=" + firebaseToken.data.customToken);
 }
 ```
 
 ## Create the Login page
 
--   Create the `/login` page, this is where we will grab the `access_token` to pass into `signInWithCustomToken`, then redirect to the `/admin` page if a user session is found
+-   Create the `/login` page, this is where we will grab the `custom_token` to pass into `signInWithCustomToken`, then redirect to the `/admin` page if a user session is found
 
 ```
 "use client";
@@ -210,10 +210,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 const DiscordAuth = () => {
     const searchParams = useSearchParams();
-    const access_token = searchParams.get("access_token");
+    const custom_token = searchParams.get("custom_token");
     const router = useRouter();
 
-    signInWithCustomToken(auth, access_token!).then(() => {
+    signInWithCustomToken(auth, custom_token!).then(() => {
         if (auth.currentUser) {
             router.push("/admin");
         } else {

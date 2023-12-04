@@ -6,10 +6,10 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 const DiscordAuth = () => {
     const searchParams = useSearchParams();
-    const access_token = searchParams.get("access_token");
+    const custom_token = searchParams.get("custom_token");
     const router = useRouter();
 
-    signInWithCustomToken(auth, access_token!).then(() => {
+    signInWithCustomToken(auth, custom_token!).then(() => {
         if (auth.currentUser) {
             router.push("/admin");
         } else {

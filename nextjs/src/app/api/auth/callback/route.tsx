@@ -15,5 +15,5 @@ export async function GET(request: NextRequest) {
         access_token: access_token,
     });
 
-    redirect("/login?access_token=" + firebaseToken.data.customToken);
+    redirect("/login?custom_token=" + firebaseToken.data.customToken);
 }
