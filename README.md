@@ -145,8 +145,56 @@ exports.createToken = functions.https.onCall((data, context) => {
 -   Pass this token into the createToken cloud function that we created above
 -   Redirect to a client page such as `/login` and pass the `access_token` result from `createToken` as a URL query
 
+```
+import { exchangeCodeForToken } from "@/utils/discord";
+import { app } from "@/utils/firebase";
+import { getFunctions, httpsCallable } from "firebase/functions";
+import { redirect } from "next/navigation";
+import { NextRequest } from "next/server";
+
+export async function GET(request: NextRequest) {
+    const code = request.nextUrl.searchParams.get("code");
+    const access_token = await exchangeCodeForToken(code!);
+
+    const functions = getFunctions(app, "us-central1");
+    const generateCustomToken = httpsCallable(functions, "createToken");
+
+    const firebaseToken: any = await generateCustomToken({
+        access_token: access_token,
+    });
+
+    redirect("/login?access_token=" + firebaseToken.data.customToken);
+}
+```
+
 ## Create the Login page
 
 -   Create the `/login` page, this is where we will grab the `access_token` to pass into `signInWithCustomToken`, then redirect to the `/admin` page if a user session is found
+
+```
+"use client";
+
+import { auth } from "@/utils/firebase";
+import { signInWithCustomToken } from "firebase/auth";
+import { useRouter, useSearchParams } from "next/navigation";
+
+const DiscordAuth = () => {
+    const searchParams = useSearchParams();
+    const access_token = searchParams.get("access_token");
+    const router = useRouter();
+
+    signInWithCustomToken(auth, access_token!).then(() => {
+        if (auth.currentUser) {
+            router.push("/admin");
+        } else {
+            router.push("/");
+        }
+    });
+
+    return <div>Logging in...</div>;
+};
+
+export default DiscordAuth;
+```
 
 That's it, you're logged in!
