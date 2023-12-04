@@ -100,6 +100,36 @@ NEXT_PUBLIC_DISCORD_CLIENT_SECRET=123456
 NEXT_PUBLIC_DISCORD_REDIRECT_URI=http://localhost:3000/api/auth/callback```
 ````
 
+## Generate Login URL
+
+-   The login URL is what starts this entire process. When you access it, it will start the authentication process
+-   Just simply assign it to a button onClick
+
+```
+export const getDiscordAuthUrl = () => {
+    const params = new URLSearchParams({
+        client_id: process.env.NEXT_PUBLIC_DISCORD_CLIENTID!,
+        redirect_uri: process.env.NEXT_PUBLIC_DISCORD_REDIRECT_URI!,
+        response_type: "code",
+        scope: "identify",
+    });
+
+    return `https://discord.com/api/oauth2/authorize?${params}`;
+};
+```
+
+```
+<button
+    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mt-4"
+    onClick={async () => {
+        const authUrl = getDiscordAuthUrl();
+        window.location.assign(authUrl);
+    }}
+>
+    Login with Discord
+</button>
+```
+
 ## Create Cloud Function
 
 I tried to do this without needing a Cloud Function, but I didnt want any security risks. The Cloud Function itself is very simple, it just passes a token into it, and it returns another token. I know we are skipping a step, but we need to add this function first since the Callback API depends on it. If you dont know how Cloud Functions work, I wont be going over it with you, but the code is in this repo for review
