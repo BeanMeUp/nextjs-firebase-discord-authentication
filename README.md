@@ -78,10 +78,13 @@ Adding Custom Providers to Firebase is not that difficult once you have an under
 In simple terms, here are the steps that must be completed for us to login with Discord, or any other OAuth2 provider
 
 1. Generate the login URL. (This is just the URL we go to that logs the user in)
-2. Once logged in, we are redirected to our provided `redirect_uri` (A `code` URL param is also appended to the uri)
-3. The provided `redirect_uri` is an API route that grabs the code, and then converts that code into a token
-4. That token is then coverted into something that is readable to `signInWithCustomToken` using a custom cloud function
+2. Once logged in, we are redirected to our callback uri `redirect_uri` (A `code` URL param is also appended to the uri)
+3. The provided `redirect_uri` is an API route that grabs the `code`, and then converts that `code` into a token
+4. That token is then coverted again into another token that is readable to `signInWithCustomToken` using a custom cloud function
 5. Once the function converts the token again, we are redirected to a login page that signs us in using `signInWithCustomToken`
+
+It looks something like this:
+Login Button -> Discord Auth Page -> Our callback API route -> Cloud Function -> Login Page
 
 Before we begin, we need to first setup Discord
 
@@ -105,6 +108,35 @@ I tried to do this without needing a Cloud Function, but I didnt want any securi
 -   Go to https://firebase.google.com and make a Realtime Database, grab the URL and paste it in the function
 -   Generate your service key and rename it then place it in the root, or change the path - https://console.firebase.google.com/u/0/project/_/settings/serviceaccounts/adminsdk
 -   Deploy the function (take note of the function's region)
+
+```
+const functions = require("firebase-functions");
+const admin = require("firebase-admin");
+const serviceAccount = require("./serviceAccountKey.json");
+
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    databaseURL: "databaseURL",
+});
+
+exports.createToken = functions.https.onCall((data, context) => {
+    const access_token = data.access_token;
+
+    return admin
+        .auth()
+        .createCustomToken(access_token)
+        .then((customToken) => {
+            return { status: "success", customToken: customToken };
+        })
+        .catch((error) => {
+            return {
+                status: "error",
+                error: error.errorInfo,
+                access_token: access_token,
+            };
+        });
+});
+```
 
 ## Create the Callback API
 
